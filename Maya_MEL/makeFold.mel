@@ -1,0 +1,144 @@
+global proc makeFold() {
+    string $s[] = `ls -sl`;
+	if (size($s)<1) { print "Please select a polygonal object."; return; } //check if something is selected
+
+	string $paperMsh = $s[0];
+	float $paperPos[] = `xform -ws -q -t $paperMsh`;
+
+    float $numCuts = 5;
+	float $posOffset = 1/$numCuts;
+	
+	string $childGrp;
+	
+	string $cutOffset;
+
+    string $bendNodes[];
+	string $bendHandle;
+
+    string $cutNodes[];
+
+    string $locNodes[];
+	string $chldLocNodes[];
+	
+	string $ctrlNode;
+	string $guideNode;
+	string $grpNode;
+	string $sdkNode;
+	
+    string $tmpNode[];
+	
+	//string $condition = `shadingNode -asUtility condition`; // turns on cut nodes only when bending
+	//setAttr ($condition+".colorIfTrue") 1 1 1;
+	//setAttr ($condition+".colorIfFalse") 0 0 0;
+	
+	// begin control crv
+    $ctrlNode = `createNode transform -n "fold_CTRL"`;
+	addAttr -sn "fold" -ln "fold" -min 0 -max 10 -at "double";
+	addAttr -ln "guideVisibility"  -at bool -dv 1;
+	setAttr ".rp" -type "double3" 2.7755575615628914e-017 -6.6086025540812443e-014 4.4408920985016254e-017 ;
+	setAttr ".sp" -type "double3" 2.7755575615628914e-017 -6.6086025540812443e-014 4.4408920985016254e-017 ;
+	setAttr -k on ".fold";
+	setAttr -k on ".guideVisibility";
+    createNode nurbsCurve -n ($ctrlNode+"Shape") -p $ctrlNode;
+	setAttr -k off ".v";
+	
+	setAttr ".cc" -type "nurbsCurve" // creates control curve points
+		3 12 2 no 3
+		17 -1 -0.90000000000000002 0 1 2 2.8999999999999999 3 3.0999999999999996 4
+		 5 6 6.9000000000000004 7 7.0999999999999996 8 9 10
+		15
+		-0.19999999999980492 -0.98918058124462704 0.71267573753988367
+		-0.19999999999985044 -0.75749123739491608 0.20556895635333611
+		-0.19999999999999968 -6.646266364276742e-014 -0.10819418755438853
+		-0.20000000000014914 0.75749123739478352 0.20556895635333633
+		-0.20000000000019499 0.98918058124449493 0.71267573753988389
+		-9.8418835722664532e-014 0.99999999999996669 0.99999999999999978
+		0.20000000000000032 0.98918058124456132 0.71267573753988478
+		0.20000000000000032 0.75749123739485014 0.20556895635333727
+		0.19999999999999996 3.9019285205539328e-016 -0.10819418755438825
+		0.19999999999999954 -0.75749123739484991 0.20556895635333561
+		0.19999999999999954 -0.98918058124456132 0.71267573753988389
+		9.8312684240913207e-014 -1.0000000000000331 0.99999999999999933
+		-0.19999999999980492 -0.98918058124462704 0.71267573753988367
+		-0.19999999999985044 -0.75749123739491608 0.20556895635333611
+		-0.19999999999999968 -6.646266364276742e-014 -0.10819418755438853
+		;
+	$guideNode = `curve -d 3 -p -10 0 0 -p -3.333333 0 0 -p 3.333333 0 0 -p 10 0 0 -k 0 -k 0 -k 0 -k 1 -k 1 -k 1 -n "ref_CRV"` ;
+	connectAttr ($ctrlNode+".guideVisibility") ($guideNode+".visibility");
+	setAttr ($guideNode+".template") 1;
+	parent $guideNode $ctrlNode;
+	// end control crv
+	
+	//connectAttr ($ctrlNode+".fold") ($condition+".firstTerm");
+	
+	$childGrp = `createNode transform -n ($paperMsh+"_CHLD")`;
+	parentConstraint $paperMsh $childGrp;
+	scaleConstraint $paperMsh $childGrp;
+	
+	for ($i=0; $i<($numCuts+4); $i++) { //subdivisions
+        $tmpNode = `spaceLocator`; // creates locators
+        select -hi;
+        $s = `ls -sl`;
+        $locNodes[$i] = $tmpNode[0];
+		
+		$tmpNode = `spaceLocator`;
+        select -hi;
+        $s = `ls -sl`;
+        $chldLocNodes[$i] = $tmpNode[0];
+        parent $chldLocNodes[$i] $childGrp;
+        parentConstraint $locNodes[$i] $chldLocNodes[$i];
+
+		setAttr ($chldLocNodes[$i]+".rotate") 0 90 0;
+		setAttr ($chldLocNodes[$i]+".visibility") 0;
+		
+        move 0 0 ((2-$i)*$posOffset) $locNodes[$i];
+        
+        $tmpNode = `polyCut -ch on -pc 0 0 ((2-$i)*$posOffset) -ro 0 0 0 -ps 10 1 $paperMsh`; // cuts
+        $cutNodes[$i] = $tmpNode[0];
+		//connectAttr ($condition+".outColorR") ($cutNodes[$i]+".nodeState"); // uses condition node to turn off cuts when not folding
+		
+		$cutOffset = `shadingNode -asUtility plusMinusAverage`;
+		connectAttr ($chldLocNodes[$i]+".translate") ($cutOffset+".input3D[1]");
+		setAttr ($cutOffset+".input3D[0]") $paperPos[0] $paperPos[1] $paperPos[2];
+	    connectAttr ($cutOffset+".output3D") ($cutNodes[$i]+".cutPlaneCenter");
+		connectAttr ($chldLocNodes[$i]+".rotate") ($cutNodes[$i]+".cutPlaneRotate");
+    }
+	
+	
+    $bendNodes = `nonLinear -type bend  -lowBound 0 -highBound 1 -curvature 0 -ds -n "fold" $paperMsh`;
+	
+	$bendHandle = ($bendNodes[0]+"Handle"); //set bend handle name
+	$sdkNode = ($bendNodes[0]+"_curvature"); // set Set Driven Key node name
+	
+	setAttr ($bendHandle+".rotate") -90 0 90;
+	setAttr ($bendHandle+".translate") 0 0 0;
+    
+	parentConstraint -mo $ctrlNode $bendHandle;
+	scaleConstraint -mo $ctrlNode $bendHandle;
+	
+	for ($i=0; $i<size($locNodes); $i++) {
+	    parent $locNodes[$i] $bendNodes[1];
+	}
+	
+	scale .1 .1 .1 $bendHandle;
+	
+	$grpNode = `group -n "foldNode_GRP" $bendHandle`;
+	parent $childGrp $grpNode;
+	setAttr ($grpNode+".visibility") 0;
+	
+	// create set driven key, connected from ctrl to fold
+	
+	setDrivenKeyframe -cd ($ctrlNode+".fold") -dv 0 -v 0 ($bendNodes[0]+".curvature");
+	setDrivenKeyframe -cd ($ctrlNode+".fold") -dv 10 -v 180 ($bendNodes[0]+".curvature");
+    setAttr ($sdkNode + ".preInfinity") 1;
+    setAttr ($sdkNode + ".postInfinity") 1;
+    keyTangent -index 0 -inTangentType spline $sdkNode ;
+    keyTangent -index 0 -outTangentType spline $sdkNode ;
+    keyTangent -index 1 -inTangentType spline $sdkNode ;
+    keyTangent -index 1 -outTangentType spline $sdkNode ;
+	
+	// end set driven key
+	
+	select $ctrlNode;
+}
+makeFold();

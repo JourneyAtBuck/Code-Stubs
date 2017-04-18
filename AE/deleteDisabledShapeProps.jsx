@@ -28,7 +28,7 @@
                     recurse (inProp);
                 }
             }
-        })(eval(propPath));
+        })(lyr);
         return res ;
     }
 

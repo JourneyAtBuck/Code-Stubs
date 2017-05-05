@@ -11,6 +11,21 @@
         }
         app.endUndoGroup();
     }
+    function removeMarkers () {
+        app.beginUndoGroup("Remove markers."); //begins undo group
+        var proj = app.project;
+        var comp = proj.activeItem;
+
+        var sel = comp.selectedLayers;
+        for (var i = 0; i < sel.length; i++) {
+            var m = sel[i]("Marker");
+            var num = m.numKeys;
+            if (num) {
+                for (var l = 1; l <= num; l++) m.removeKey(l);
+            }
+        }
+        app.endUndoGroup();
+    }
     // Function for creating the user interface
     function buildUI(thisObj) {
         try{
@@ -24,6 +39,8 @@
                 dynBtn: Button{preferredSize:[100,-1]},\
                 tvaMidBtn: Button{preferredSize:[100,-1]},\
                 tvaBtmBtn: Button{preferredSize:[100,-1]},\
+                hrGroupTop: Panel{orientation:'row', preferredSize:[200,-1]},\
+                removerBtn: Button{preferredSize:[100,-1]}\
             }\
         }";
         pal.grp = pal.add(ui);
@@ -56,6 +73,10 @@
         // text bottom align
         pal.grp.mainGroup.tvaBtmBtn.text = "textVAlign=1";
         pal.grp.mainGroup.tvaBtmBtn.onClick = function () {setMarker ("textVAlign=1")};
+        
+        // marker remover button
+        pal.grp.mainGroup.removerBtn.text = "Remove markers";
+        pal.grp.mainGroup.removerBtn.onClick = removeMarkers;
         
         return pal;
         } catch(e) {

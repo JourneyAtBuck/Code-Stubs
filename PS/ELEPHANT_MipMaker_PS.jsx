@@ -23,19 +23,23 @@
 
         var fPath = fldr.fsName;
         var fName = fldr.name;
-
-        
+    
         for (var i = 0; i<mipMaps; i++) {
             //Folder to create in the chosen parent folder
             var currSize = resArray[i];
             
             var PNGname = newFileName+"-"+currSize+"px.png";
-            
-            //duplicate active document
-            var tempDoc = doc.duplicate(doc.name+currSize.toString());
+            var sel = smartObj.selection;
+            sel.selectAll();
+            sel.copy(true);
+            var selBounds = sel.bounds;
 
+            //duplicate active document
+            var tempDoc = app.documents.add(smartObj.width, smartObj.height, smartObj.resolution, doc.name+currSize.toString());
+            tempDoc.paste();
+            tempDoc.layers.getByName("Background").remove();
+     
             tempDoc.resizeImage(UnitValue(currSize,"px"),null,null,ResampleMethod.BICUBIC);
-            
 
             // our web export options
             var options = new ExportOptionsSaveForWeb();
@@ -47,14 +51,9 @@
             
             tempDoc.close(SaveOptions.DONOTSAVECHANGES);
             counter++;
-        }
-        
-    
-
-        
+        }       
         smartObj.close(SaveOptions.DONOTSAVECHANGES);
     }
-
     var dest = scriptPath.parent.selectDlg("Select destination folder.");  
 
     if (!dest) {
@@ -65,15 +64,9 @@
         if (!destFolder.exists) {
             destFolder.create();
         }
-
         ELEPHANT_MipMaker("320px",destFolder);
-
-            
-
     }
-
     return alert(counter.toString()+" images extracted.");
-    
-    
+  
 }
 ELEPHANT_MipMaker();

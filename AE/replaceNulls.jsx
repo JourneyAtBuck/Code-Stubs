@@ -1,4 +1,5 @@
-﻿var proj = app.project;
+﻿app.beginUndoGroup("Replace Nulls."); //begins undo group
+var proj = app.project;
 var sel = proj.selection;
 for (s in sel) {
     if (sel[s] instanceof FootageItem) var sourceItem = sel[s];
@@ -16,3 +17,4 @@ for (i in sel) {
     }
 
 }
+app.endUndoGroup();

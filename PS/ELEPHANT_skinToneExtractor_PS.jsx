@@ -30,15 +30,10 @@
             var currSize = resArray[i];
             
             var PNGname = newFileName+"-"+inGrp.split("-")[0]+"-"+currSize+"px.png";
-            var sel = smartObj.selection;
-            sel.selectAll();
-            sel.copy(true);
-            var selBounds = sel.bounds;
 
             //duplicate active document
-            var tempDoc = app.documents.add(smartObj.width, smartObj.height, smartObj.resolution, doc.name+currSize.toString());
-            tempDoc.paste();
-            tempDoc.layers.getByName("Background").remove();
+            var tempDoc = smartObj.duplicate(doc.name+currSize.toString(),true);            
+            //tempDoc.layers.getByName("Background").remove();
             tempDoc.resizeImage(UnitValue(currSize,"px"),null,null,ResampleMethod.BICUBIC);
             
 
@@ -53,9 +48,6 @@
             tempDoc.close(SaveOptions.DONOTSAVECHANGES);
             counter++;
         }
-        
-    
-
         
         smartObj.close(SaveOptions.DONOTSAVECHANGES);
     }

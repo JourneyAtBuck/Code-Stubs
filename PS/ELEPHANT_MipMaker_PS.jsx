@@ -29,15 +29,9 @@
             var currSize = resArray[i];
             
             var PNGname = newFileName+"-"+currSize+"px.png";
-            var sel = smartObj.selection;
-            sel.selectAll();
-            sel.copy(true);
-            var selBounds = sel.bounds;
 
             //duplicate active document
-            var tempDoc = app.documents.add(smartObj.width, smartObj.height, smartObj.resolution, doc.name+currSize.toString());
-            tempDoc.paste();
-            tempDoc.layers.getByName("Background").remove();
+            var tempDoc = smartObj.duplicate(doc.name+currSize.toString(),true);   
      
             tempDoc.resizeImage(UnitValue(currSize,"px"),null,null,ResampleMethod.BICUBIC);
 

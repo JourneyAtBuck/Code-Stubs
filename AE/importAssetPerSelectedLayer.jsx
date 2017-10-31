@@ -1,4 +1,5 @@
-﻿(function () {
+﻿#target aftereffects
+(function () {
     try{
     
         app.beginUndoGroup("Import project item per selected layer");

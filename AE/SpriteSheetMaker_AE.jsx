@@ -1,5 +1,5 @@
 ﻿function spriteSheetMaker(thisObj) {
-    var scriptVersion = ".3";
+    var scriptVersion = ".31";
     var scriptName = "AE Sprite Sheet Maker";
     
         
@@ -18,7 +18,7 @@
         var ssComp = proj.items.addComp(comp.name+" Sprite Sheet", parseInt(cols*w), parseInt(dur/cols*h), comp.pixelAspect, comp.frameDuration, comp.frameRate);
         cLayer = ssComp.layers.add(comp);
         var startFrame = comp.displayStartTime/comp.frameDuration;
-        for (var l = 1; l< dur-1; l++) {
+        for (var l = 1; l< dur; l++) {
             cLayer.duplicate();
         }
         for (var i = 0; i< ssComp.layers.length; i++) {

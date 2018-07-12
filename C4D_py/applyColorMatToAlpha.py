@@ -1,16 +1,22 @@
+"""Name-US: Apply Color Texture to Alpha
+Description-US: Duplicates the shader in the color channel into the alpha channel for all materials in scene.
+"""
+
 import c4d
 from c4d import gui
-#Welcome to the world of Python
-
 
 def main():
     doc.StartUndo()
-    materials = doc.GetMaterials()
+    materials = doc.GetActiveMaterials()
+    if not materials:
+        materials = doc.GetMaterials()
+
     for mat in materials:
-        if mat.GetType() == 5703:
-            filter_shader = c4d.BaseShader(1011128)
+        if mat.GetType() == c4d.Mmaterial:
             texture = mat[c4d.MATERIAL_COLOR_SHADER]
-            mat[c4d.MATERIAL_ALPHA_SHADER] = texture
+            alpha_texture = texture.GetClone()
+            mat.InsertShader(alpha_texture)
+            mat[c4d.MATERIAL_ALPHA_SHADER] = alpha_texture
     doc.EndUndo()
 if __name__=='__main__':
     main()

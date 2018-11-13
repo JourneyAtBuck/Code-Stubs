@@ -15,11 +15,11 @@ def main():
         if mat.GetType() == c4d.Mmaterial:
             doc.AddUndo(c4d.UNDOTYPE_CHANGE, mat)
 
-            texture = mat[c4d.MATERIAL_COLOR_SHADER]
+            texture = mat[c4d.MATERIAL_LUMINANCE_SHADER]
             if texture is not None:
                 alpha_texture = texture.GetClone()
                 mat.InsertShader(alpha_texture)
-                mat[c4d.MATERIAL_ALPHA_SHADER] = alpha_texture
+                mat[c4d.MATERIAL_COLOR_SHADER] = alpha_texture
             mat.Message(c4d.MSG_UPDATE)
     doc.EndUndo()
     c4d.EventAdd()

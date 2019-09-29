@@ -1,0 +1,17 @@
+string $sel[] = `ls -sl`;
+for ($j =1; $j <= size($sel); $j++) {
+    string $ctrl = "pillCTRL";
+    string $pJoint = ("pJoint" + $j);
+    string $cJoint = ("cJoint" + $j);
+    //parentConstraint $pJoint $cJoint;
+    string $condition = `shadingNode -asUtility condition`;
+    string $mul = `shadingNode -asUtility multiplyDivide`;
+    setAttr ($condition + ".operation") 5;
+    connectAttr ($cJoint + ".translateY") ($condition + ".firstTerm");
+    connectAttr ($ctrl + ".pillScale") ($mul + ".input1.input1X");
+    connectAttr ($ctrl + ".pillLength") ($pJoint + ".scaleX");
+    connectAttr ($condition + ".outColorR") ($mul + ".input2.input2X");
+    connectAttr ($condition + ".outColorR") ($cJoint + ".scaleX");
+    connectAttr ($mul + ".output.outputX") ($cJoint + ".scaleY");
+    connectAttr ($mul + ".output.outputX") ($cJoint + ".scaleZ");
+}

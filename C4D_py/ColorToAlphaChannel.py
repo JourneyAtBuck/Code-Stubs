@@ -9,7 +9,9 @@ import c4d
 from c4d import gui
 
 def main():
-    materials = doc.GetMaterials()
+    materials = doc.GetActiveMaterials()
+    if not materials:
+        materials = doc.GetMaterials()
     if not materials:
         return
 

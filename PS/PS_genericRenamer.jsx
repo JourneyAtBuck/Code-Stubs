@@ -27,7 +27,7 @@ function main() {
     if (app.documents.length > 0) {
         var sel = getSelectedLayers();
         for (var i = 0 ; i < sel.length ; i++)
-            sel[i].name = "Balloon" + i.toString();
+            sel[i].name = "Overlay rays " + i.toString();
     }
 }
 

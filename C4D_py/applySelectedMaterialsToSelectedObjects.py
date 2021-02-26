@@ -1,8 +1,5 @@
 import c4d
 from c4d import gui
-from random import shuffle
-#Welcome to the world of Python
-
 
 def main():
     objs = doc.GetActiveObjects(2)
@@ -23,7 +20,6 @@ def main():
         n += 1
     
     doc.EndUndo()
-    c4d.EventAdd()
         
 if __name__=='__main__':
     main()

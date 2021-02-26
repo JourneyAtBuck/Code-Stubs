@@ -1,4 +1,14 @@
-﻿(function addNullParents(thisObj) {
+﻿/*
+Instructions: Install in your script folder and run it in After Effects. Select some layers and click the button...
+and you'll have new nulls with the selected layers parented to them! This should transfer all animation from your
+selected layers to the nulls, and if the selected layers were parented, the nulls should now be parented to the same
+layer. 
+
+Created by: Zack Lovatt (zack@zacklovatt.com) & Moses Journey (mail@mrjourney.net)
+Maintained by: Moses Journey (mail@mrjourney.net)
+*/
+
+(function addNullParents(thisObj) {
   ///collectKeyframes function
   function collectKeyframes(propertyInput) {
     if (propertyInput instanceof Property) {

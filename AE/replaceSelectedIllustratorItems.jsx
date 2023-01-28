@@ -1,5 +1,7 @@
 /*
-todo: replace using file picker, start at path from previously picked file
+This script replaces all selected items in your project with files that have a matching suffix. The suffix
+is any text after a version number. NOTE: the filenames should be structured like this:
+"ASSET_NAME_v###_SUFFIX" where the #s are numbers. It should work with version numbers of any length.
 
 Created by: Moses Journey (journey@buck.co)
 Maintained by: Moses Journey (journey@buck.co)

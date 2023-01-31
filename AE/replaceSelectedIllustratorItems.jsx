@@ -99,10 +99,12 @@ Maintained by: Moses Journey (journey@buck.co)
         var currentSuffix = fileSplit[2];
         for (var e = 1; e <= projectItems.length; e++) {
           var currentItem = projectItems[e];
-          var currentSource = currentItem.mainSource.file.displayName;
-          if (currentItem.selected && currentSource.match(currentSuffix)) {
-            currentItem.replace(currentFile);
-            continue;
+          if (currentItem.selected) {
+            var currentSource = currentItem.mainSource.file.displayName;
+            if (currentItem.selected && currentSource.match(currentSuffix)) {
+              currentItem.replace(currentFile);
+              continue;
+            }
           }
         }
       }
